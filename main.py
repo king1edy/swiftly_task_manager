@@ -7,7 +7,7 @@ from core.security import get_current_user
 from db.session import engine
 from db.base_model import Base
 
-from routes.user import router as auth_router
+from routes.auth import router as auth_router
 from routes.tasks import router as task_router
 
 
@@ -20,7 +20,7 @@ def create_tables():
 def start_application():
     app = FastAPI(title=settings.PROJECT_NAME,version=settings.PROJECT_VERSION)
     create_tables()  # Ensure tables are created at startup
-    route.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
+    app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
     app.include_router(task_router, prefix="/api/tasks", tags=["Tasks"])
     return app
 
