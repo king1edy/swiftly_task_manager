@@ -1,0 +1,52 @@
+name: Deploy FastAPI to Azure
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        types: [closed]
+        branches:
+            - main
+
+env:
+  AZURE_CONTAINER_REGISTRY: smartwaveapiacr.azurecr.io
+  IMAGE_NAME: swiftly_task_mgt_app
+  ACR_NAME: ${{ secrets.ACR_NAME }}
+  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry
+        run: |
+          az acr login --name smartwaveapiacr
+
+      - name: Build Docker Image
+        run: |
+          docker build -t $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }} .
+
+      - name: Push Image to Azure Container Registry
+        run: |
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/taskmanager:latest
+  
+          docker push $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
+      - name: Deploy to Azure Container Apps
+        run: |
+          az containerapp create --name swiftly_task_mgt-app \
+          --resource-group docker-container-rg \
+          --image $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.sha }} \
+          --target-port 8000 \
+          --environment-variables DATABASE_URL="postgresql://nc_graphql:S3cret@mydb:5432/swift_task_mgr_db"
