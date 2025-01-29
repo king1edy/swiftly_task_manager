@@ -1,4 +1,4 @@
-#config.py
+# config.py
 import os
 from functools import lru_cache
 from typing import Optional
@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: Optional[str] = None
 
     # Database Settings
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "nc_graphql")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "S3cret")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_PORT: str = str(os.getenv("POSTGRES_PORT", "5432"))
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "swift_task_mgr_db")
